@@ -59,7 +59,7 @@ fun <T> GraphBuilder<T>.edge(edge: Pair<T, T>) {
     graph.addEdge(edge.mutableEdge)
 }
 
-fun <T> GraphBuilder<T>.doubleEdge(edge: Pair<T,T>) {
+fun <T> GraphBuilder<T>.doubleEdge(edge: Pair<T, T>) {
     graph.addEdge(edge.mutableEdge)
     graph.addEdge((edge.second to edge.first).mutableEdge)
 }

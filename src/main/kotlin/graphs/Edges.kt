@@ -27,10 +27,11 @@ open class MutableEdge<T>(var start: MutableNode<T>, var end: MutableNode<T>) {
         return "MutableEdge($start to $end)"
     }
 }
+
 open class Edge<T>(val start: Node<T>, val end: Node<T>) {
     constructor(mutableEdge: MutableEdge<T>) : this(mutableEdge.start.immutable, mutableEdge.end.immutable)
 
-    open fun makeMutable() :MutableEdge<T>{
+    open fun makeMutable(): MutableEdge<T> {
         return MutableEdge(start.mutable, end.mutable)
     }
 
@@ -57,7 +58,6 @@ open class Edge<T>(val start: Node<T>, val end: Node<T>) {
     }
 
 
-
 }
 
 class MutableWeightedEdge<T, N : Number>(start: MutableNode<T>, end: MutableNode<T>, var weight: N) :
@@ -73,8 +73,8 @@ class MutableWeightedEdge<T, N : Number>(start: MutableNode<T>, end: MutableNode
 
         other as MutableWeightedEdge<*, *>
 
-        if(start != other.start) return false
-        if(end != other.end) return false
+        if (start != other.start) return false
+        if (end != other.end) return false
         if (weight != other.weight) return false
 
         return true
@@ -90,8 +90,8 @@ class MutableWeightedEdge<T, N : Number>(start: MutableNode<T>, end: MutableNode
         return "MutableWeightedEdge($start to $end weight = $weight)"
     }
 }
-class WeightedEdge<T, N : Number>(start: Node<T>, end: Node<T>, val weight: N)
-    : Edge<T>(start, end) {
+
+class WeightedEdge<T, N : Number>(start: Node<T>, end: Node<T>, val weight: N) : Edge<T>(start, end) {
     constructor(mutableWeightedEdge: MutableWeightedEdge<T, N>)
             : this(mutableWeightedEdge.start.immutable, mutableWeightedEdge.end.immutable, mutableWeightedEdge.weight)
 
@@ -106,8 +106,8 @@ class WeightedEdge<T, N : Number>(start: Node<T>, end: Node<T>, val weight: N)
 
         other as WeightedEdge<*, *>
 
-        if(start != other.start) return false
-        if(end != other.end) return false
+        if (start != other.start) return false
+        if (end != other.end) return false
         if (weight != other.weight) return false
 
 

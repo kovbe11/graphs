@@ -1,7 +1,7 @@
 package graphs
 
 class MutableNode<T>(var value: T) {
-    constructor(node: Node<T>): this(node.value)
+    constructor(node: Node<T>) : this(node.value)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -22,6 +22,7 @@ class MutableNode<T>(var value: T) {
         return "MutableNode($value)"
     }
 }
+
 class Node<T>(val value: T) {
     constructor(mutableNode: MutableNode<T>) : this(mutableNode.value)
 

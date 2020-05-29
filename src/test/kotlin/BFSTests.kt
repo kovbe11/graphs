@@ -2,7 +2,6 @@ import graphs.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.lang.StringBuilder
 
 class BFSTests {
 
@@ -38,17 +37,17 @@ class BFSTests {
     @Test
     fun randomTest1() {
         val builder = StringBuilder()
-        basicGraph.traverseBFS(0.node){
+        basicGraph.traverseBFS(0.node) {
             builder.append(it.value)
         }
         assertEquals("012345", builder.toString())
     }
 
     @Test
-    fun randomTest2(){
+    fun randomTest2() {
         val bfs = BFS(basicGraph, 3.node)
 
-        val bfsTree = graph<Int>{
+        val bfsTree = graph<Int> {
             node(3)
             node(1)
             node(2)
@@ -85,7 +84,7 @@ class BFSTests {
     }
 
     @Test
-    fun randomTest4(){
+    fun randomTest4() {
         val bfs = BFS(fourComponentGraph, 1.node)
 
         val bfsTree = graph<Int> {

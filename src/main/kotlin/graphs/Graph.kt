@@ -8,9 +8,9 @@ data class MutableGraph<T>(
 ) {
 
     val nodes: MutableSet<MutableNode<T>>
-    get() {
-        return edges.keys
-    }
+        get() {
+            return edges.keys
+        }
 
     constructor(graph: Graph<T>)
             : this(graph.edges.mapKeys { it.key.mutable }
@@ -39,13 +39,13 @@ data class MutableGraph<T>(
 class Graph<T>(val edges: Map<Node<T>, List<Edge<T>>>) {
 
     val nodes: Set<Node<T>>
-    get() {
-        return edges.keys
-    }
+        get() {
+            return edges.keys
+        }
 
     constructor(mutableGraph: MutableGraph<T>)
             : this(mutableGraph.edges.mapKeys { it.key.immutable }
-            .mapValues { entry -> entry.value.map { it.makeImmutable() } })
+        .mapValues { entry -> entry.value.map { it.makeImmutable() } })
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -55,8 +55,8 @@ class Graph<T>(val edges: Map<Node<T>, List<Edge<T>>>) {
 
         if (nodes != other.nodes) return false
         //order doesn't matter!
-        for (entry in edges.entries){
-            if(!(other.edges[entry.key] ?: return false).containsAll(entry.value)){
+        for (entry in edges.entries) {
+            if (!(other.edges[entry.key] ?: return false).containsAll(entry.value)) {
                 return false
             }
         }
@@ -66,7 +66,7 @@ class Graph<T>(val edges: Map<Node<T>, List<Edge<T>>>) {
 
     override fun hashCode(): Int {
         var result = nodes.hashCode()
-        for (entry in edges.entries){
+        for (entry in edges.entries) {
             result = 31 * result + (entry.value.sumBy { it.hashCode() })  //so that order doesn't matter!
         }
         return result
@@ -81,16 +81,16 @@ class GraphBuilder<T> {
 
     val graph = MutableGraph<T>()
 
-    fun build(): Graph<T>{
+    fun build(): Graph<T> {
         return graph.immutable
     }
 }
 
 
-fun <T> graph(op: GraphBuilder<T>.() -> Unit): Graph<T>{
+fun <T> graph(op: GraphBuilder<T>.() -> Unit): Graph<T> {
     return GraphBuilder<T>().apply(op).build()
 }
 
-fun <T> mutableGraph(op: GraphBuilder<T>.() -> Unit): MutableGraph<T>{
+fun <T> mutableGraph(op: GraphBuilder<T>.() -> Unit): MutableGraph<T> {
     return GraphBuilder<T>().apply(op).graph
 }
