@@ -1,11 +1,13 @@
 import graphs.*
+import graphs.algorithms.BFS
+import graphs.algorithms.traverseBFS
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class BFSTests {
 
-    //TODO: get more tests, from files or whatevs
+    //TODO: több teszt beszédes névvel
 
     private val basicGraph = graph<Int> {
         node(0)
@@ -99,6 +101,14 @@ class BFSTests {
         assertNull(bfs.visitLevel(4.node))
         assertEquals(1, bfs.visitLevel(2.node))
         assertEquals(1, bfs.visitLevel(3.node))
+    }
+
+    @Test
+    fun randomTest5() {
+        val bfs1 = BFS(basicGraph, 0.node)
+        assert(!bfs1.bfsTree.hasCycle)
+        val bfs2 = BFS(fourComponentGraph, 1.node)
+        assert(!bfs2.bfsTree.hasCycle)
     }
 
 }

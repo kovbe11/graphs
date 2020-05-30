@@ -1,4 +1,7 @@
 import graphs.*
+import graphs.algorithms.traverseBFSIndexed
+import graphs.algorithms.traverseDFSDepthIndexed
+import graphs.algorithms.traverseDFSFinishIndexed
 
 
 fun main() {
@@ -36,11 +39,50 @@ fun main() {
         edge(3 to 2)
     }
 
+    val graph2 = graph<Char>
+    {
+        node('a')
+        node('b')
+        node('c')
+        node('d')
+        node('e')
+        node('f')
+        node('g')
+        node('s')
+        edge('a' to 'd')
+        edge('a' to 'e')
+        edge('a' to 'b')
+        edge('b' to 'f')
+        edge('c' to 'a')
+        edge('c' to 'd')
+        edge('d' to 'e')
+        edge('e' to 'f')
+        edge('e' to 'b')
+        edge('g' to 'd')
+        edge('g' to 'c')
+        edge('s' to 'g')
+        edge('s' to 'c')
+    }
+
     graph1.traverseBFSIndexed(2.node) { node, i ->
         println("$node is $i away from starting node")
     }
+    println()
+
+    graph2.traverseDFSDepthIndexed('s'.node) { node, i ->
+        println("$node has depth number $i")
+    }
+    println()
+    graph2.traverseDFSFinishIndexed('s'.node) { node, i ->
+        println("$node has finish number $i")
+    }
+
+    if (graph2.hasCycle) {
+        println("asd")
+    }
 
 }
+
 
 
 

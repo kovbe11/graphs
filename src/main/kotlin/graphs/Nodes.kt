@@ -1,5 +1,7 @@
 package graphs
 
+//ugyanaz a kérdés: öröklés/interface/hogy?
+
 class MutableNode<T>(var value: T) {
     constructor(node: Node<T>) : this(node.value)
 

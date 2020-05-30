@@ -3,6 +3,9 @@ package graphs
 import java.util.*
 import kotlin.collections.HashMap
 
+
+//ezt amúgy hogy érdemes csinálni? örököljön a MutableGraph a Graph-ból? interface?
+
 data class MutableGraph<T>(
     val edges: MutableMap<MutableNode<T>, MutableList<MutableEdge<T>>> = HashMap()
 ) {
@@ -33,6 +36,35 @@ data class MutableGraph<T>(
     fun removeEdge(edge: MutableEdge<T>) {
         check(edges.containsKey(edge.start) && edges.containsKey(edge.end))
         edges[edge.start]!!.remove(edge)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MutableGraph<*>
+
+        if (nodes != other.nodes) return false
+        //order doesn't matter!
+        for (entry in edges.entries) {
+            if (!(other.edges[entry.key] ?: return false).containsAll(entry.value)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = nodes.hashCode()
+        for (entry in edges.entries) {
+            result = 31 * result + (entry.value.sumBy { it.hashCode() })  //so that order doesn't matter!
+        }
+        return result
+    }
+
+    override fun toString(): String {
+        return "MutableGraph(nodes=$nodes, edges=$edges)"
     }
 }
 

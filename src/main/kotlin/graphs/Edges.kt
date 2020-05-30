@@ -1,5 +1,8 @@
 package graphs
 
+//ugyanaz a kérdés: öröklés/interface/hogy?
+
+
 open class MutableEdge<T>(var start: MutableNode<T>, var end: MutableNode<T>) {
     open fun makeImmutable(): Edge<T> {
         return this.immutable

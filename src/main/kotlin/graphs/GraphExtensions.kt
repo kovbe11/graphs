@@ -1,5 +1,7 @@
 package graphs
 
+import graphs.algorithms.DFS
+
 val <T> MutableGraph<T>.immutable: Graph<T>
     get() {
         return Graph(this)
@@ -84,4 +86,30 @@ fun <T> GraphBuilder<T>.node(value: T) {
     graph.addNode(value.mutableNode)
 }
 
+val <T> Graph<T>.hasCycle: Boolean
+    get() {
+        return hasCycleGetter(this)
+    }
 
+private fun <T> hasCycleGetter(graph: Graph<T>): Boolean {
+    if (hasCycleCache.containsKey(graph)) {
+        return hasCycleCache[graph] ?: error("concurrency issue")
+    }
+
+    if (hasCycleCache.size > 100) { //nem tudom hogy cacheléskor mekkora mennyiséget érdemes tárolni
+        hasCycleCache.remove(hasCycleCache.keys.first())
+    }
+
+    var hasCycle = false
+    for (node in graph.nodes) {
+        if (DFS(graph, node).hasCycle) {
+            hasCycle = true
+            break
+        }
+    }
+
+    hasCycleCache[graph] = hasCycle
+    return hasCycle
+}
+
+private val hasCycleCache: MutableMap<Graph<*>, Boolean> = HashMap()
