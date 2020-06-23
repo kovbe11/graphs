@@ -1,6 +1,10 @@
-import graphs.*
 import graphs.algorithms.BFS
 import graphs.algorithms.traverseBFS
+import graphs.algorithms.visitLevel
+import graphs.utils.doubleEdge
+import graphs.utils.edge
+import graphs.utils.graph
+import graphs.utils.node
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -79,8 +83,8 @@ class BFSTests {
             edge(4 to 2)
             edge(2 to 0)
             edge(2 to 3)
-            edge(0 to 1)
             edge(3 to 5)
+            edge(3 to 1)
         }
         assertEquals(bfsTree, bfs.bfsTree)
     }
@@ -106,9 +110,9 @@ class BFSTests {
     @Test
     fun randomTest5() {
         val bfs1 = BFS(basicGraph, 0.node)
-        assert(!bfs1.bfsTree.hasCycle)
+        assert(!bfs1.bfsTree.hasDirectedCycle)
         val bfs2 = BFS(fourComponentGraph, 1.node)
-        assert(!bfs2.bfsTree.hasCycle)
+        assert(!bfs2.bfsTree.hasDirectedCycle)
     }
 
 }

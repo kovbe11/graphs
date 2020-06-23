@@ -1,5 +1,8 @@
-import graphs.*
 import graphs.algorithms.DFS
+import graphs.utils.doubleEdge
+import graphs.utils.edge
+import graphs.utils.graph
+import graphs.utils.node
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -79,13 +82,13 @@ class DFSTests {
     @Test
     fun depthTest1() {
         assert(dfs1.depthNum['s'.node] == 0)
-        assert(dfs1.depthNum['g'.node] == 1)
+        assert(dfs1.depthNum['c'.node] == 1)
         assert(dfs1.depthNum['d'.node] == 2)
         assert(dfs1.depthNum['e'.node] == 3)
         assert(dfs1.depthNum['f'.node] == 4)
         assert(dfs1.depthNum['b'.node] == 5)
-        assert(dfs1.depthNum['c'.node] == 6)
-        assert(dfs1.depthNum['a'.node] == 7)
+        assert(dfs1.depthNum['a'.node] == 6)
+        assert(dfs1.depthNum['g'.node] == 7)
     }
 
     @Test
@@ -134,29 +137,55 @@ class DFSTests {
 
     @Test
     fun cycleDetection1() {
-        assert(!dfs1.hasCycle)
-        assert(dfs2.hasCycle)
-        assert(dfs3.hasCycle)
-        assert(dfs4.hasCycle)
-        assert(!dfs5.hasCycle)
-        assert(!dfs6.hasCycle) //mivel a 4 esből nem láthatjuk hogy van kör
+        assert(!dfs1.hasDirectedCycle)
+        assert(dfs2.hasDirectedCycle)
+        assert(dfs3.hasDirectedCycle)
+        assert(dfs4.hasDirectedCycle)
+        assert(!dfs5.hasDirectedCycle)
+        assert(!dfs6.hasDirectedCycle) //mivel a 4 esből nem láthatjuk hogy van kör
     }
 
     @Test
     fun cycleDetection2() {
-        assert(cyclicGraph.hasCycle)
-        assert(!acyclicGraph.hasCycle)
-        assert(!basicGraph.hasCycle)
+        assert(cyclicGraph.hasDirectedCycle)
+        assert(!acyclicGraph.hasDirectedCycle)
+        assert(!basicGraph.hasDirectedCycle)
     }
 
     @Test
     fun dfsTree() {
-        assert(!dfs1.dfsTree.hasCycle)
-        assert(!dfs2.dfsTree.hasCycle)
-        assert(!dfs3.dfsTree.hasCycle)
-        assert(!dfs4.dfsTree.hasCycle)
-        assert(!dfs5.dfsTree.hasCycle)
-        assert(!dfs6.dfsTree.hasCycle)
+        assert(!dfs1.dfsTree.hasDirectedCycle)
+        assert(!dfs2.dfsTree.hasDirectedCycle)
+        assert(!dfs3.dfsTree.hasDirectedCycle)
+        assert(!dfs4.dfsTree.hasDirectedCycle)
+        assert(!dfs5.dfsTree.hasDirectedCycle)
+        assert(!dfs6.dfsTree.hasDirectedCycle)
+    }
+
+    @Test
+    fun directedUndirectedCycles() {
+        val undirected1 = graph<Int> {
+            node(1)
+            node(2)
+            doubleEdge(1 to 2)
+        }
+        val dfs7 = DFS(undirected1, 1.node)
+
+        val undirected2 = graph<Int> {
+            node(1)
+            node(2)
+            node(3)
+            doubleEdge(1 to 2)
+            doubleEdge(2 to 3)
+            doubleEdge(3 to 1)
+        }
+
+        val dfs8 = DFS(undirected2, 1.node)
+
+        assert(dfs7.hasDirectedCycle)
+        assert(!dfs7.hasUndirectedCycle)
+        assert(dfs8.hasDirectedCycle)
+        assert(dfs8.hasUndirectedCycle)
     }
 
 }

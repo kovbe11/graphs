@@ -1,129 +1,123 @@
 package graphs
 
-//ugyanaz a kérdés: öröklés/interface/hogy?
+/**
+ * An interface that defines an edge
+ *
+ * @param T Type parameter of the nodes
+ * @see Node
+ */
+interface Edge<T> {
+    /**
+     * Starting node
+     */
+    val start: Node<T>
 
+    /**
+     * Ending node
+     */
+    val end: Node<T>
 
-open class MutableEdge<T>(var start: MutableNode<T>, var end: MutableNode<T>) {
-    open fun makeImmutable(): Edge<T> {
-        return this.immutable
+}
+
+/**
+ * A simple implementation of the Edge interface
+ * @param T Type parameter of the nodes
+ * @property start Starting node
+ * @property end Ending node
+ * @see Edge
+ */
+data class SimpleEdge<T>(override val start: Node<T>, override val end: Node<T>) : Edge<T> {
+
+    override fun toString(): String {
+        return "Edge($start to $end)"
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+}
 
-        other as MutableEdge<*>
+/**
+ * @param T Type parameter of the nodes
+ * @property start Starting node as MutableNode and as var
+ * @property end Ending node as MutableNode and as var
+ * @see MutableNode
+ */
+interface MutableEdge<T> : Edge<T> {
+    /**
+     * Starting node
+     */
+    override var start: MutableNode<T>
 
-        if (start != other.start) return false
-        if (end != other.end) return false
+    /**
+     * Ending node
+     */
+    override var end: MutableNode<T>
+}
 
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = start.hashCode()
-        result = 31 * result + end.hashCode()
-        return result
-    }
+/**
+ * A simple implementation of MutableEdge interface
+ * @param T Type parameter of the nodes
+ * @property start Starting node
+ * @property end Ending node
+ * @see MutableEdge
+ */
+data class SimpleMutableEdge<T>(override var start: MutableNode<T>, override var end: MutableNode<T>) : MutableEdge<T> {
 
     override fun toString(): String {
         return "MutableEdge($start to $end)"
     }
 }
 
-open class Edge<T>(val start: Node<T>, val end: Node<T>) {
-    constructor(mutableEdge: MutableEdge<T>) : this(mutableEdge.start.immutable, mutableEdge.end.immutable)
-
-    open fun makeMutable(): MutableEdge<T> {
-        return MutableEdge(start.mutable, end.mutable)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Edge<*>
-
-        if (start != other.start) return false
-        if (end != other.end) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = start.hashCode()
-        result = 31 * result + end.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "Edge($start to $end)"
-    }
-
-
+/**
+ * Weighted Edge interface
+ * @param T Type parameter of the nodes
+ * @param N The type of number to represent the weight
+ * @property weight The value of weight on this edge
+ */
+interface WeightedEdge<T, N : Number> : Edge<T> {
+    /**
+     * Value of weight
+     */
+    val weight: N
 }
 
-class MutableWeightedEdge<T, N : Number>(start: MutableNode<T>, end: MutableNode<T>, var weight: N) :
-    MutableEdge<T>(start, end) {
-    override fun makeImmutable(): Edge<T> {
-        return this.immutable
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as MutableWeightedEdge<*, *>
-
-        if (start != other.start) return false
-        if (end != other.end) return false
-        if (weight != other.weight) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + weight.hashCode()
-        return result
-    }
+/**
+ * A simple implementation of the WeightedEdge interface
+ * @param T Type parameter of T
+ * @param N The type of number to represent the weight
+ * @property start The starting node
+ * @property end The ending node
+ * @property weight The value of weight on this edge
+ * @see SimpleEdge
+ * @see WeightedEdge
+ */
+data class SimpleWeightedEdge<T, N : Number>(
+    override val start: Node<T>,
+    override val end: Node<T>,
+    override val weight: N
+) : WeightedEdge<T, N> {
 
     override fun toString(): String {
-        return "MutableWeightedEdge($start to $end weight = $weight)"
+        return "WeightedEdge($start to $end, $weight)"
     }
 }
 
-class WeightedEdge<T, N : Number>(start: Node<T>, end: Node<T>, val weight: N) : Edge<T>(start, end) {
-    constructor(mutableWeightedEdge: MutableWeightedEdge<T, N>)
-            : this(mutableWeightedEdge.start.immutable, mutableWeightedEdge.end.immutable, mutableWeightedEdge.weight)
+/**
+ * The mutable version of the WeightedEdge interface
+ * @param T The type parameter of the nodes
+ * @param N The type of number to represent the weight
+ * @property weight The value of weight on this edge overriden as var
+ * @see MutableEdge
+ * @see WeightedEdge
+ */
+interface MutableWeightedEdge<T, N : Number> : MutableEdge<T>, WeightedEdge<T, N> {
+    override var weight: N
+}
 
-    override fun makeMutable(): MutableEdge<T> {
-        return MutableWeightedEdge(start.mutable, end.mutable, weight)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as WeightedEdge<*, *>
-
-        if (start != other.start) return false
-        if (end != other.end) return false
-        if (weight != other.weight) return false
-
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + weight.hashCode()
-        return result
-    }
-
+data class SimpleMutableWeightedEdge<T, N : Number>(
+    override var start: MutableNode<T>,
+    override var end: MutableNode<T>,
+    override var weight: N
+) : MutableWeightedEdge<T, N> {
     override fun toString(): String {
-        return "WeightedEdge($start to $end weight = $weight)"
+        return "MutableWeightedEdge($start to $end, $weight)"
     }
 }

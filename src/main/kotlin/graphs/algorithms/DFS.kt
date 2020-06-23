@@ -3,79 +3,112 @@ package graphs.algorithms
 import graphs.Edge
 import graphs.Graph
 import graphs.Node
+import graphs.utils.buildTree
+import graphs.utils.get
 
 class DFS<T>(private val graph: Graph<T>, val rootNode: Node<T>) {
 
-    //elkérhetjük a dfs fát
     val dfsTree: Graph<T>
 
-    //mélységi számozás
-    private val mutableDepthNum: MutableMap<Node<T>, Int> = HashMap()
-    val depthNum: Map<Node<T>, Int>
+    private val mutableVisited: MutableSet<Node<T>> = HashSet()
+    val visited: Set<Node<T>>
+        get() = mutableVisited
 
-    //visszatérési számozás
-    private val mutableFinishNum: MutableMap<Node<T>, Int> = HashMap()
-    val finishNum: Map<Node<T>, Int>
 
-    //felhasznált élek
+    private val mutableDepthOrder: MutableList<Node<T>> = ArrayList(graph.nodes.size)
+    val depthNum: Map<Node<T>, Int> //if depthNum is needed O(1)
+    val depthOrder: List<Node<T>> //if order is needed O(1)
+        get() = mutableDepthOrder
+
+    private val mutableFinishOrder: MutableList<Node<T>> = ArrayList(graph.nodes.size)
+    val finishNum: Map<Node<T>, Int> //if finishNum is needed O(1)
+    val finishOrder: List<Node<T>> //if order is needed O(1)
+        get() = mutableFinishOrder
+
+
     private val mutableUsedEdges: MutableSet<Edge<T>> = HashSet()
     val usedEdges: Set<Edge<T>>
 
-    //találtunk-e kört
-    private var mutableHasCycle = false
-    val hasCycle: Boolean
+    private var mutableHasDirectedCycle = false
+    val hasDirectedCycle: Boolean
 
-    //így keressük hogy van e kör a gráfban
-    private val onStack: MutableSet<Node<T>> = HashSet()
+    private var mutableHasUndirectedCycle = false
+    val hasUndirectedCycle: Boolean
 
+    private val onStack: MutableSet<Node<T>> = HashSet() //not used as a stack!
 
-    private var maxDepth: Int = 0
-    private var maxFin: Int = 0
+    private val isUndirected = graph.isUndirected
 
     init {
         dfs(rootNode)
+
         dfsTree = buildTree(rootNode, mutableUsedEdges)
-        //immutable dolgok beállítása
-        depthNum = mutableDepthNum
-        finishNum = mutableFinishNum
+
+        depthNum = mutableDepthOrder.mapIndexed { idx, value -> value to idx }.toMap()
+        finishNum = mutableFinishOrder.mapIndexed { idx, value -> value to idx }.toMap()
+
         usedEdges = mutableUsedEdges
-        hasCycle = mutableHasCycle
+        hasDirectedCycle = mutableHasDirectedCycle
+        hasUndirectedCycle = mutableHasUndirectedCycle
     }
 
 
     private fun dfs(current: Node<T>) {
-        //beállítjuk az aktuális node számát
-        mutableDepthNum[current] = maxDepth
-        ++maxDepth
-
-        //betesszük a stackre
+        mutableDepthOrder.add(current)
+        mutableVisited.add(current)
         onStack.add(current)
 
-        //összegyűjtjük
-        val childrenConnections =
-            (graph.edges[current] ?: error("invalid graph"))
+        val childrenConnections = (graph[current] ?: error("invalid graph"))
 
         for (edge in childrenConnections) {
 
-            if (mutableDepthNum.containsKey(edge.end)) {
-                //ha olyan nodeal találkoztunk ami a stacken van akkor
+            //check if we already have it visited
+            if (mutableVisited.contains(edge.end)) {
+                //check if it's on stack
                 if (onStack.contains(edge.end)) {
-                    mutableHasCycle = true
+                    mutableHasDirectedCycle = true
+                    //check if it's only bc of undirected graph
+                    if (isUndirected && mutableUsedEdges.none { it.start == edge.end && it.end == edge.start }) {
+                        mutableHasUndirectedCycle = true
+                    }
                 }
                 continue
             }
 
-            //kiválasztjuk
             mutableUsedEdges.add(edge)
-            //majd a szomszédra is meghívjuk ezt
             dfs(edge.end)
         }
-        //visszatéréskor pedig megjelöljük hogy hanyadikként térünk vissza
-        mutableFinishNum[current] = maxFin++
-
-        //kivesszük a stackről
+        mutableFinishOrder.add(current)
         onStack.remove(current)
-
     }
 
+}
+
+inline fun <T> Graph<T>.traverseDFSDepth(startingNode: Node<T>, crossinline function: (Node<T>) -> Unit) {
+    traverseDFSDepthIndexed(startingNode) { node, _ ->
+        function(node)
+    }
+}
+
+inline fun <T> Graph<T>.traverseDFSDepthIndexed(startingNode: Node<T>, function: (Node<T>, Int) -> Unit) {
+    val helper = DFS(this, startingNode)
+
+    helper.depthOrder.forEachIndexed { idx, node ->
+        function(node, idx)
+    }
+}
+
+
+inline fun <T> Graph<T>.traverseDFSFinish(startingNode: Node<T>, crossinline function: (Node<T>) -> Unit) {
+    traverseDFSFinishIndexed(startingNode) { node, _ ->
+        function(node)
+    }
+}
+
+inline fun <T> Graph<T>.traverseDFSFinishIndexed(startingNode: Node<T>, function: (Node<T>, Int) -> Unit) {
+    val helper = DFS(this, startingNode)
+
+    helper.finishOrder.forEachIndexed { idx, node ->
+        function(node, idx)
+    }
 }
