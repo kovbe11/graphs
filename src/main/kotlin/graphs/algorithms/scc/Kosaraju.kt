@@ -1,7 +1,9 @@
-package graphs.algorithms
+package graphs.algorithms.scc
 
 import graphs.Graph
 import graphs.Node
+import graphs.algorithms.traversal.DFS
+import graphs.algorithms.traversal.traverseDFSDepth
 import graphs.utils.*
 import java.util.*
 import kotlin.collections.HashSet

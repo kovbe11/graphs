@@ -1,5 +1,6 @@
-import graphs.algorithms.Kruskal
+import graphs.algorithms.minspanningtree.Kruskal
 import graphs.utils.doubleEdge
+import graphs.utils.edge
 import graphs.utils.node
 import graphs.utils.weightedGraph
 import org.junit.Assert.assertEquals
@@ -37,6 +38,27 @@ class KruskalTests {
         val krusk = Kruskal(mst1)
         val minWeight = krusk.minimumSpanningForest.adjacencyList.values.flatten().sumBy { it.weight } / 2
         assertEquals(37, minWeight)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun directedFound1() {
+        val graph = weightedGraph<Int, Int> {
+            node(1)
+            node(2)
+            edge(1 to 2, 2)
+            edge(2 to 1, 1)
+        }
+        Kruskal(graph)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun directedFound2() {
+        val graph = weightedGraph<Int, Int> {
+            node(1)
+            node(2)
+            edge(1 to 2, 2)
+        }
+        Kruskal(graph)
     }
 
 }

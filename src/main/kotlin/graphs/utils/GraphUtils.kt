@@ -1,7 +1,7 @@
 package graphs.utils
 
 import graphs.*
-import graphs.algorithms.DFS
+import graphs.algorithms.traversal.DFS
 
 val <T> MutableGraph<T>.immutable: Graph<T>
     get() {
@@ -65,7 +65,19 @@ fun <T> isUndirected(graph: Graph<T>): Boolean {
     val edges = graph.adjacencyList.values.flatten()
     for (edge in edges) {
         //each edge has a pair
-        if (edges.none { it.start == edge.end && it.end == edge.start }) {
+        if (graph[edge.end]!!.find { it.end == edge.start } == null) {
+            return false
+        }
+    }
+    return true
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T, N : Number> isUndirectedWeighted(graph: WeightedGraph<T, N>): Boolean {
+    val edges = graph.adjacencyList.values.flatten()
+    for (edge in edges) {
+        val pair = graph[edge.end]!!.find { it.end == edge.start } as? WeightedEdge<T, N>
+        if (pair == null || pair.weight != edge.weight) {
             return false
         }
     }

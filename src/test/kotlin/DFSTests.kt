@@ -1,4 +1,4 @@
-import graphs.algorithms.DFS
+import graphs.algorithms.traversal.DFS
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.graph

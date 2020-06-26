@@ -1,6 +1,6 @@
-import graphs.algorithms.BFS
-import graphs.algorithms.traverseBFS
-import graphs.algorithms.visitLevel
+import graphs.algorithms.traversal.BFS
+import graphs.algorithms.traversal.traverseBFS
+import graphs.algorithms.traversal.visitLevel
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.graph

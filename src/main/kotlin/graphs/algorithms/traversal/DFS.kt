@@ -1,4 +1,4 @@
-package graphs.algorithms
+package graphs.algorithms.traversal
 
 import graphs.Edge
 import graphs.Graph

@@ -3,6 +3,7 @@ package graphs
 import graphs.utils.hasDirectedCycle
 import graphs.utils.hasUndirectedCycle
 import graphs.utils.isUndirected
+import graphs.utils.isUndirectedWeighted
 
 interface Graph<T> {
     val nodes: Set<Node<T>>
@@ -89,7 +90,7 @@ data class SimpleWeightedGraph<T, N : Number>
     override val nodes: Set<Node<T>> = adjacencyList.keys
     override val hasDirectedCycle: Boolean by lazy { hasDirectedCycle(this) }
     override val hasUndirectedCycle: Boolean by lazy { hasUndirectedCycle(this) }
-    override val isUndirected: Boolean by lazy { isUndirected(this) }
+    override val isUndirected: Boolean by lazy { isUndirectedWeighted(this) }
 
     override fun toString(): String {
         return "WeightedGraph(nodes=$nodes, edges=$adjacencyList)"
@@ -122,7 +123,7 @@ data class SimpleMutableWeightedGraph<T, N : Number>
         }
     override val isUndirected: Boolean
         get() {
-            return isUndirected(this)
+            return isUndirectedWeighted(this)
         }
 
     override fun addNode(node: MutableNode<T>) {

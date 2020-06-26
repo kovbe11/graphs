@@ -1,4 +1,4 @@
-import graphs.algorithms.kosaraju
+import graphs.algorithms.scc.kosaraju
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.graph

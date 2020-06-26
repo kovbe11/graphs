@@ -1,4 +1,4 @@
-package graphs.algorithms
+package graphs.algorithms.minspanningtree
 
 import graphs.SimpleMutableWeightedGraph
 import graphs.WeightedEdge

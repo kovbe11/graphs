@@ -1,7 +1,7 @@
 import graphs.Edge
 import graphs.Graph
 import graphs.Node
-import graphs.algorithms.kosaraju
+import graphs.algorithms.scc.kosaraju
 import graphs.utils.edge
 import graphs.utils.findInDegreesOfNodes
 import graphs.utils.graph
