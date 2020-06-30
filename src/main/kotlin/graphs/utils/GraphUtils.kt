@@ -1,7 +1,9 @@
 package graphs.utils
 
 import graphs.*
-import graphs.algorithms.traversal.DFS
+import graphs.algorithms.shortestpath.NumberAdapter
+import graphs.algorithms.traversal.dfsDirectedDetectCycleFrom
+import graphs.algorithms.traversal.dfsUnDirectedDetectCycleFrom
 
 val <T> MutableGraph<T>.immutable: Graph<T>
     get() {
@@ -36,21 +38,11 @@ val <T, N : Number> WeightedGraph<T, N>.mutable: SimpleMutableWeightedGraph<T, N
 
 
 fun <T> hasDirectedCycle(graph: Graph<T>): Boolean {
-    for (node in graph.nodes) {
-        if (DFS(graph, node).hasDirectedCycle) {
-            return true
-        }
-    }
-    return false
+    return graph.nodes.any { dfsDirectedDetectCycleFrom(graph, it) }
 }
 
 fun <T> hasUndirectedCycle(graph: Graph<T>): Boolean {
-    for (node in graph.nodes) {
-        if (DFS(graph, node).hasUndirectedCycle) {
-            return true
-        }
-    }
-    return false
+    return graph.nodes.any { dfsUnDirectedDetectCycleFrom(graph, it) }
 }
 
 operator fun <T> MutableGraph<T>.get(node: MutableNode<T>): MutableSet<MutableEdge<T>>? {
@@ -102,6 +94,18 @@ operator fun <T> Graph<T>.minus(other: Set<Node<T>>): Graph<T> {
     return SimpleGraph(retAdjList)
 }
 
+operator fun <T, N : Number> WeightedGraph<T, N>.minus(other: Set<Node<T>>): WeightedGraph<T, N> {
+    val retAdjList = adjacencyList.filterKeys { !other.contains(it) }
+        .mapValues {
+            it.value.filter { weightedEdge ->
+                !other.contains(weightedEdge.start) && !other.contains(
+                    weightedEdge.end
+                )
+            }.toSet()
+        }
+    return SimpleWeightedGraph(retAdjList)
+}
+
 fun <T> findInDegreesOfNodes(graph: Graph<T>): Map<Node<T>, Int> {
     val ret = mutableMapOf<Node<T>, Int>()
     for (node in graph.nodes) {
@@ -115,33 +119,100 @@ fun <T> findInDegreesOfNodes(graph: Graph<T>): Map<Node<T>, Int> {
     return ret
 }
 
-fun <T> buildTreeChecked(graph: Graph<T>, rootNode: Node<T>, usedEdges: MutableSet<Edge<T>>): Graph<T> {
-    require(graph.adjacencyList.values.flatten().containsAll(usedEdges)) //részgráf
-    require(graph.nodes.contains(rootNode))
 
-    val ret = buildTree(rootNode, usedEdges)
-    require(!ret.hasDirectedCycle)
-    return ret
+fun <T, N : Number> buildPathFromPreviousNodeMapping(
+    endNode: Node<T>,
+    previousNodeMapping: Map<Node<T>, WeightedEdge<T, N>>
+): WeightedGraph<T, N> {
+    return weightedGraph {
+        node(endNode)
+
+        var prev: WeightedEdge<T, N>? = previousNodeMapping[endNode]
+        while (prev != null) {
+            node(prev.start)
+            edge(prev)
+            prev = previousNodeMapping[prev.start]
+        }
+    }
 }
 
-fun <T> buildTree(rootNode: Node<T>, usedEdges: MutableSet<Edge<T>>): Graph<T> {
-    val nodes: MutableSet<Node<T>> = HashSet()
+fun <T> buildPathFromPreviousNodeMapping(
+    endNode: Node<T>,
+    previousNodeMapping: Map<Node<T>, Edge<T>>
+): Graph<T> {
+    return graph {
+        node(endNode)
 
-    nodes.add(rootNode)
-    for (edge in usedEdges) {
-        nodes.add(edge.end)
+        var prev: Edge<T>? = previousNodeMapping[endNode]
+        while (prev != null) {
+            node(prev.start)
+            edge(prev)
+            prev = previousNodeMapping[prev.start]
+        }
     }
+}
 
-    val mapping: MutableMap<Node<T>, MutableSet<Edge<T>>> =
-        HashMap()
-    for (node in nodes) {
-        mapping[node] = HashSet()
-        for (edge in usedEdges) {
-            if (edge.start == node) {
-                mapping[node]!!.add(edge)
-            }
+fun <T, N : Number> buildTreeFromPreviousNodeMapping(
+    startNode: Node<T>,
+    previousNodeMapping: Map<Node<T>, WeightedEdge<T, N>>
+): WeightedGraph<T, N> {
+    return weightedGraph {
+        node(startNode)
+        for (n in previousNodeMapping.keys) {
+            node(n)
+        }
+        for (e in previousNodeMapping.values) {
+            edge(e)
+        }
+    }
+}
+
+fun <T> buildTreeFromPreviousNodeMapping(
+    startNode: Node<T>,
+    previousNodeMapping: Map<Node<T>, Edge<T>>
+): Graph<T> {
+    return graph {
+        node(startNode)
+        for (n in previousNodeMapping.keys) {
+            node(n)
+        }
+        for (e in previousNodeMapping.values) {
+            edge(e)
+        }
+    }
+}
+
+fun <T, N : Number> buildDistanceMappingFromPreviousNodeMapping(
+    graph: WeightedGraph<T, N>,
+    startNode: Node<T>,
+    previousNodeMapping: Map<Node<T>, WeightedEdge<T, N>>,
+    numberAdapter: NumberAdapter<N>
+): Map<Node<T>, N> {
+    val ret: MutableMap<Node<T>, N> = HashMap()
+
+    for (node in graph.nodes) {
+        val list: MutableList<WeightedEdge<T, N>> = ArrayList()
+
+        var prev: WeightedEdge<T, N>? = previousNodeMapping[node]
+        while (prev != null) {
+            list.add(prev)
+            prev = previousNodeMapping[prev.start]
+        }
+
+        if (list.isEmpty()) {
+            ret[node] = numberAdapter.toN(Double.POSITIVE_INFINITY)
+        } else {
+            ret[node] = numberAdapter.toN(list.sumByDouble { numberAdapter.toDouble(it.weight) })
         }
     }
 
-    return SimpleGraph(mapping.toMap())
+    ret[startNode] = numberAdapter.toN(0.0)
+    return ret
+}
+
+fun <T, N : Number> WeightedGraph<T, N>.sumEdgeWeights(numberAdapter: NumberAdapter<N>): N {
+    return adjacencyList.values.flatten()
+        .fold(numberAdapter.toN(0.0)) { acc, edge ->
+            numberAdapter.toN(numberAdapter.toDouble(edge.weight) + numberAdapter.toDouble(acc))
+        }
 }

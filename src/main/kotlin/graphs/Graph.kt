@@ -36,8 +36,9 @@ interface MutableGraph<T> : Graph<T> {
     fun removeEdge(edge: MutableEdge<T>)
 }
 
-data class SimpleMutableGraph<T>
-    (override val adjacencyList: MutableMap<MutableNode<T>, MutableSet<MutableEdge<T>>> = HashMap()) : MutableGraph<T> {
+data class SimpleMutableGraph<T>(
+    override val adjacencyList: MutableMap<MutableNode<T>, MutableSet<MutableEdge<T>>> = HashMap()
+) : MutableGraph<T> {
 
     override val nodes: Set<MutableNode<T>> = adjacencyList.keys
 
@@ -62,8 +63,11 @@ data class SimpleMutableGraph<T>
         }
     }
 
+    //TODO: you can remove a node that has edges pointing to it
     override fun removeNode(node: MutableNode<T>) {
         adjacencyList.remove(node)
+        adjacencyList.values.forEach { it.removeIf { edge -> edge.end == node } }
+        //    adjacencyList.values.forEach { it.filter { edge-> edge.end == node } }
     }
 
     override fun addEdge(edge: MutableEdge<T>) {

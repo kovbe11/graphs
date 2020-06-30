@@ -1,10 +1,11 @@
-import graphs.algorithms.minspanningtree.Kruskal
+import graphs.algorithms.minspanningtree.kruskal
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.node
 import graphs.utils.weightedGraph
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.*
 
 class KruskalTests {
     //from https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-using-stl-in-c/
@@ -35,8 +36,7 @@ class KruskalTests {
 
     @Test
     fun goodMstFound() {
-        val krusk = Kruskal(mst1)
-        val minWeight = krusk.minimumSpanningForest.adjacencyList.values.flatten().sumBy { it.weight } / 2
+        val minWeight = kruskal(mst1, Comparator.naturalOrder()).adjacencyList.values.flatten().sumBy { it.weight } / 2
         assertEquals(37, minWeight)
     }
 
@@ -48,7 +48,7 @@ class KruskalTests {
             edge(1 to 2, 2)
             edge(2 to 1, 1)
         }
-        Kruskal(graph)
+        kruskal(graph, Comparator.naturalOrder())
     }
 
     @Test(expected = IllegalStateException::class)
@@ -58,7 +58,7 @@ class KruskalTests {
             node(2)
             edge(1 to 2, 2)
         }
-        Kruskal(graph)
+        kruskal(graph, Comparator.naturalOrder())
     }
 
 }

@@ -1,4 +1,4 @@
-import graphs.algorithms.traversal.DFS
+import graphs.algorithms.traversal.*
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.graph
@@ -72,50 +72,47 @@ class DFSTests {
         edge(3 to 4)
     }
 
-    private val dfs1 = DFS(basicGraph, 's'.node)
-    private val dfs2 = DFS(threeComponentGraph, 1.node)
-    private val dfs3 = DFS(threeComponentGraph, 5.node)
-    private val dfs4 = DFS(cyclicGraph, 1.node)
-    private val dfs5 = DFS(acyclicGraph, 1.node)
-    private val dfs6 = DFS(cyclicGraph, 4.node)
-
     @Test
     fun depthTest1() {
-        assert(dfs1.depthNum['s'.node] == 0)
-        assert(dfs1.depthNum['c'.node] == 1)
-        assert(dfs1.depthNum['d'.node] == 2)
-        assert(dfs1.depthNum['e'.node] == 3)
-        assert(dfs1.depthNum['f'.node] == 4)
-        assert(dfs1.depthNum['b'.node] == 5)
-        assert(dfs1.depthNum['a'.node] == 6)
-        assert(dfs1.depthNum['g'.node] == 7)
+        val depthNums = basicGraph.dfsDepthNumMappingFrom('s'.node)
+        assertEquals(depthNums['s'.node], 0)
+        assertEquals(depthNums['c'.node], 1)
+        assertEquals(depthNums['d'.node], 2)
+        assertEquals(depthNums['e'.node], 3)
+        assertEquals(depthNums['f'.node], 4)
+        assertEquals(depthNums['b'.node], 5)
+        assertEquals(depthNums['a'.node], 6)
+        assertEquals(depthNums['g'.node], 7)
     }
 
     @Test
     fun finishTest1() {
-        assert(dfs1.finishNum['f'.node] == 0)
-        assert(dfs1.finishNum['b'.node] == 1)
-        assert(dfs1.finishNum['e'.node] == 2)
-        assert(dfs1.finishNum['d'.node] == 3)
-        assert(dfs1.finishNum['a'.node] == 4)
-        assert(dfs1.finishNum['c'.node] == 5)
-        assert(dfs1.finishNum['g'.node] == 6)
-        assert(dfs1.finishNum['s'.node] == 7)
+        val finishNums = basicGraph.dfsFinishNumMappingFrom('s'.node)
+        assertEquals(finishNums['f'.node], 0)
+        assertEquals(finishNums['b'.node], 1)
+        assertEquals(finishNums['e'.node], 2)
+        assertEquals(finishNums['d'.node], 3)
+        assertEquals(finishNums['a'.node], 4)
+        assertEquals(finishNums['c'.node], 5)
+        assertEquals(finishNums['g'.node], 6)
+        assertEquals(finishNums['s'.node], 7)
     }
 
     @Test
     fun depthTest2() {
-        assert(dfs2.depthNum[3.node] == 1)
-        assert(dfs2.depthNum.size == 2)
+        val depthNums1 = threeComponentGraph.dfsDepthNumMappingFrom(1.node)
+        val depthNums2 = threeComponentGraph.dfsDepthNumMappingFrom(5.node)
+        assertEquals(1, depthNums1[3.node])
+        assertEquals(2, depthNums1.size)
         val expected1 = graph<Int> {
             node(1)
             node(3)
             edge(1 to 3)
         }
-        assertEquals(expected1, dfs2.dfsTree)
-        assert(dfs3.depthNum.size == 3)
-        assert(dfs3.depthNum[10.node] == 1)
-        assert(dfs3.depthNum[2.node] == 2)
+        assertEquals(expected1, threeComponentGraph.dfsTreeFrom(1.node))
+        assertEquals(3, depthNums2.size)
+        assertEquals(1, depthNums2[10.node])
+        assertEquals(2, depthNums2[2.node])
         val expected2 = graph<Int> {
             node(10)
             node(5)
@@ -123,26 +120,29 @@ class DFSTests {
             edge(5 to 10)
             edge(5 to 2)
         }
-        assertEquals(expected2, dfs3.dfsTree)
+        assertEquals(expected2, threeComponentGraph.dfsTreeFrom(5.node))
     }
 
     @Test
     fun finishTest2() {
-        assert(dfs2.finishNum[3.node] == 0)
-        assert(dfs2.finishNum.size == 2)
-        assert(dfs3.finishNum.size == 3)
-        assert(dfs3.finishNum[10.node] == 0)
-        assert(dfs3.finishNum[2.node] == 1)
+        val finishNums1 = threeComponentGraph.dfsFinishNumMappingFrom(1.node)
+        val finishNums2 = threeComponentGraph.dfsFinishNumMappingFrom(5.node)
+        assertEquals(0, finishNums1[3.node])
+        assertEquals(2, finishNums1.size)
+        assertEquals(3, finishNums2.size)
+        assertEquals(0, finishNums2[10.node])
+        assertEquals(1, finishNums2[2.node])
     }
+
 
     @Test
     fun cycleDetection1() {
-        assert(!dfs1.hasDirectedCycle)
-        assert(dfs2.hasDirectedCycle)
-        assert(dfs3.hasDirectedCycle)
-        assert(dfs4.hasDirectedCycle)
-        assert(!dfs5.hasDirectedCycle)
-        assert(!dfs6.hasDirectedCycle) //mivel a 4 esből nem láthatjuk hogy van kör
+        assert(!dfsDirectedDetectCycleFrom(basicGraph, 's'.node))
+        assert(dfsDirectedDetectCycleFrom(threeComponentGraph, 1.node))
+        assert(dfsDirectedDetectCycleFrom(threeComponentGraph, 5.node))
+        assert(dfsDirectedDetectCycleFrom(cyclicGraph, 1.node))
+        assert(!dfsDirectedDetectCycleFrom(acyclicGraph, 1.node))
+        assert(!dfsDirectedDetectCycleFrom(cyclicGraph, 4.node)) //can't see from node 4
     }
 
     @Test
@@ -154,12 +154,12 @@ class DFSTests {
 
     @Test
     fun dfsTree() {
-        assert(!dfs1.dfsTree.hasDirectedCycle)
-        assert(!dfs2.dfsTree.hasDirectedCycle)
-        assert(!dfs3.dfsTree.hasDirectedCycle)
-        assert(!dfs4.dfsTree.hasDirectedCycle)
-        assert(!dfs5.dfsTree.hasDirectedCycle)
-        assert(!dfs6.dfsTree.hasDirectedCycle)
+        assert(!basicGraph.dfsTreeFrom('s'.node).hasDirectedCycle)
+        assert(!threeComponentGraph.dfsTreeFrom(1.node).hasDirectedCycle)
+        assert(!threeComponentGraph.dfsTreeFrom(5.node).hasDirectedCycle)
+        assert(!cyclicGraph.dfsTreeFrom(1.node).hasDirectedCycle)
+        assert(!acyclicGraph.dfsTreeFrom(1.node).hasDirectedCycle)
+        assert(!cyclicGraph.dfsTreeFrom(4.node).hasDirectedCycle)
     }
 
     @Test
@@ -169,7 +169,6 @@ class DFSTests {
             node(2)
             doubleEdge(1 to 2)
         }
-        val dfs7 = DFS(undirected1, 1.node)
 
         val undirected2 = graph<Int> {
             node(1)
@@ -180,12 +179,10 @@ class DFSTests {
             doubleEdge(3 to 1)
         }
 
-        val dfs8 = DFS(undirected2, 1.node)
-
-        assert(dfs7.hasDirectedCycle)
-        assert(!dfs7.hasUndirectedCycle)
-        assert(dfs8.hasDirectedCycle)
-        assert(dfs8.hasUndirectedCycle)
+        assert(dfsDirectedDetectCycleFrom(undirected1, 1.node))
+        assert(!dfsUnDirectedDetectCycleFrom(undirected1, 1.node))
+        assert(dfsDirectedDetectCycleFrom(undirected2, 1.node))
+        assert(dfsUnDirectedDetectCycleFrom(undirected2, 1.node))
     }
 
 }
