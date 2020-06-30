@@ -1,6 +1,6 @@
-import graphs.utils.doubleEdge
-import graphs.utils.node
-import graphs.utils.weightedGraph
+import graphs.Node
+import graphs.WeightedGraph
+import graphs.utils.*
 
 val test1 = weightedGraph<Char, Int> {
     for (c in 'A'..'E') {
@@ -109,13 +109,67 @@ val test5 = weightedGraph<Int, Int> {
     doubleEdge(7 to 3, 6)
 }
 
-val test6 = weightedGraph<Int, Double> {
-    for (i in 1..5) {
-        node(i)
+val grid100x100: WeightedGraph<Pair<Int, Int>, Double> = weightedGraph {
+    for (i in 0 until 100) {
+        for (j in 0 until 100) {
+            node(i to j)
+        }
     }
-    for (i in 1..5) {
-        for (j in 1..i) {
-            doubleEdge(i to j, i / j.toDouble())
+
+    for (i in 0 until 100) {
+        for (j in 0 until 100) {
+            val weight = if (i % 2 == 0) 0.3 else 0.2
+            if (i + 1 < 100) edge((i to j) to (i + 1 to j), weight)
+            if (i - 1 >= 0) edge((i to j) to (i - 1 to j), weight)
+            if (j + 1 < 100) edge((i to j) to (i to j + 1), weight)
+            if (j - 1 >= 0) edge((i to j) to (i to j - 1), weight)
         }
     }
 }
+
+private fun wall(i: Int, range: IntRange): Set<Node<Pair<Int, Int>>> {
+    val wall = mutableSetOf<Node<Pair<Int, Int>>>()
+
+    for (j in range) {
+        wall.add((i to j).node)
+    }
+
+    return wall
+}
+
+@Suppress("UNCHECKED_CAST")
+val walledGrid100x100: WeightedGraph<Pair<Int, Int>, Double> = weightedGraph<Pair<Int, Int>, Double> {
+    for (i in 0 until 100) {
+        for (j in 0 until 100) {
+            node(i to j)
+        }
+    }
+
+    for (i in 0 until 100) {
+        for (j in 0 until 100) {
+            val weight = if (i % 2 == 0) 0.3 else 0.2
+            if (i + 1 < 100) edge((i to j) to (i + 1 to j), weight)
+            if (i - 1 >= 0) edge((i to j) to (i - 1 to j), weight)
+            if (j + 1 < 100) edge((i to j) to (i to j + 1), weight)
+            if (j - 1 >= 0) edge((i to j) to (i to j - 1), weight)
+        }
+    }
+} - wall(50, 30..70)
+
+val gridForFloyd20x20: WeightedGraph<Pair<Int, Int>, Double> = weightedGraph {
+    for (i in 0 until 20) {
+        for (j in 0 until 20) {
+            node(i to j)
+        }
+    }
+
+    for (i in 0 until 20) {
+        for (j in 0 until 20) {
+            if (i + 1 < 20) edge((i to j) to (i + 1 to j), 1.0)
+            if (i - 1 >= 0) edge((i to j) to (i - 1 to j), 1.0)
+            if (j + 1 < 20) edge((i to j) to (i to j + 1), 1.0)
+            if (j - 1 >= 0) edge((i to j) to (i to j - 1), 1.0)
+        }
+    }
+}
+

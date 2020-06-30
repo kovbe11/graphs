@@ -3,57 +3,66 @@ package graphs.algorithms.traversal
 import graphs.Edge
 import graphs.Graph
 import graphs.Node
-import graphs.utils.buildTree
+import graphs.utils.buildPathFromPreviousNodeMapping
+import graphs.utils.buildTreeFromPreviousNodeMapping
 import graphs.utils.get
 
-class BFS<T>(private val graph: Graph<T>, val rootNode: Node<T>) {
 
-    val bfsTree: Graph<T>
+private fun <T> bfsHelper(
+    graph: Graph<T>,
+    current: Node<T>,
+    endNode: Node<T>?,
+    visited: MutableMap<Node<T>, Int>,
+    previousNodeMapping: MutableMap<Node<T>, Edge<T>>,
+    d: Int
+) {
+    visited[current] = d
 
-    private val mutableVisited: MutableMap<Node<T>, Int> =
-        HashMap()
+    val neighbourConnections = (graph[current] ?: error("invalid graph"))
+        .filter { !visited.containsKey(it.end) }
 
-    val visited: Map<Node<T>, Int>
+    if (neighbourConnections.isEmpty()) return
 
-    private val mutableUsedEdges: MutableSet<Edge<T>> = HashSet()
-
-    val usedEdges: Set<Edge<T>>
-
-    init {
-        bfs(rootNode, 0)
-        bfsTree = buildTree(rootNode, mutableUsedEdges)
-        visited = mutableVisited.toMap()
-        usedEdges = mutableUsedEdges.toSet()
+    for (edge in neighbourConnections) {
+        previousNodeMapping[edge.end] = edge
+        visited[edge.end] = d + 1
     }
-
-    private fun bfs(current: Node<T>, d: Int) {
-
-        mutableVisited[current] = d
-
-        //nem meglátogatott szomszédokba mutató élek
-        val neighbourConnections = (graph[current] ?: error("invalid graph"))
-            .filter { !mutableVisited.containsKey(it.end) }
-
-        if (neighbourConnections.isEmpty()) return
-
-        for (edge in neighbourConnections) {
-            mutableUsedEdges.add(edge)
-            mutableVisited[edge.end] = d + 1
-        }
-        for (edge in neighbourConnections) {
-            bfs(edge.end, d + 1)
-        }
+    for (edge in neighbourConnections) {
+        bfsHelper(graph, edge.end, endNode, visited, previousNodeMapping, d + 1)
     }
-
 }
 
-fun <T> BFS<T>.visitLevel(node: Node<T>): Int? {
-    return visited[node]
+
+fun <T> bfs(
+    graph: Graph<T>,
+    startNode: Node<T>,
+    endNode: Node<T>? = null
+): Pair<Map<Node<T>, Edge<T>>, Map<Node<T>, Int>> {
+    val visited: MutableMap<Node<T>, Int> = HashMap()
+    val previousNodeMapping: MutableMap<Node<T>, Edge<T>> = HashMap()
+    bfsHelper(graph, startNode, endNode, visited, previousNodeMapping, 0)
+
+    return previousNodeMapping to visited
 }
 
-fun <T> Graph<T>.bfsShortestPathLength(startNode: Node<T>, endNode: Node<T>): Int {
-    val bfs = BFS(this, startNode)
-    return bfs.visitLevel(endNode) ?: error("$endNode is unreachable, or not in graph!")
+fun <T> Graph<T>.bfsTreeFrom(startNode: Node<T>): Graph<T> {
+    return buildTreeFromPreviousNodeMapping(startNode, bfs(this, startNode, null).first)
+}
+
+fun <T> Graph<T>.bfsDistance(startNode: Node<T>, endNode: Node<T>): Int {
+    return bfs(this, startNode, endNode).second[endNode] ?: -1
+}
+
+fun <T> bfsShortestPath(graph: Graph<T>, startNode: Node<T>, endNode: Node<T>): Graph<T> {
+    return bfsShortestPathOrNull(graph, startNode, endNode) ?: error("$endNode is unreachable, or not part of graph")
+}
+
+fun <T> bfsShortestPathOrNull(graph: Graph<T>, startNode: Node<T>, endNode: Node<T>): Graph<T>? {
+    val bfs = bfs(graph, startNode, endNode)
+    if (!bfs.second.containsKey(endNode)) {
+        return null
+    }
+    return buildPathFromPreviousNodeMapping(endNode, bfs.first)
 }
 
 inline fun <T> Graph<T>.traverseBFS(startingNode: Node<T>, crossinline function: (Node<T>) -> Unit) {
@@ -62,13 +71,13 @@ inline fun <T> Graph<T>.traverseBFS(startingNode: Node<T>, crossinline function:
     }
 }
 
-inline fun <T> Graph<T>.traverseBFSIndexed(startingNode: Node<T>, crossinline function: (Node<T>, Int) -> Unit) {
-    val helper = BFS(this, startingNode)
+inline fun <T> Graph<T>.traverseBFSIndexed(startNode: Node<T>, crossinline function: (Node<T>, Int) -> Unit) {
 
-    val levels = helper.visited.values.max() ?: return
+    val bfs = bfs(this, startNode, null)
+    val levels = bfs.second.values.max() ?: return
 
     for (i in 0..levels) {
-        helper.visited.filterValues { it == i }.keys.forEach {
+        bfs.second.filterValues { it == i }.keys.forEach {
             function(it, i)
         }
     }

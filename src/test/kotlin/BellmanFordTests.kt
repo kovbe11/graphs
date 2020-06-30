@@ -1,5 +1,7 @@
 import graphs.algorithms.shortestpath.IntAdapter
-import graphs.algorithms.shortestpath.tree.BellmanFord
+import graphs.algorithms.shortestpath.tree.bellmanFord
+import graphs.algorithms.shortestpath.tree.bellmanFordShortestDistances
+import graphs.algorithms.shortestpath.tree.bellmanFordShortestTree
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.node
@@ -11,8 +13,6 @@ class BellmanFordTests {
 
     @Test
     fun test1() {
-        val bellmanFord =
-            BellmanFord(test1, 'A'.node, IntAdapter)
 
         val expectedDistancesMapping = mapOf(
             'A'.node to 0,
@@ -21,7 +21,7 @@ class BellmanFordTests {
             'D'.node to 1,
             'E'.node to 2
         )
-        assertEquals(expectedDistancesMapping, bellmanFord.distances)
+        assertEquals(expectedDistancesMapping, bellmanFordShortestDistances(test1, 'A'.node, IntAdapter))
 
         val expectedShortestPaths = weightedGraph<Char, Int> {
             for (c in 'A'..'E') {
@@ -33,15 +33,12 @@ class BellmanFordTests {
             edge('E' to 'C', 5)
         }
 
-        assertEquals(expectedShortestPaths, bellmanFord.shortestPathTree)
-//        assertEquals(7, test1.bellmanFordShortestPath('A'.node, 'C'.node))
+        assertEquals(expectedShortestPaths, bellmanFordShortestTree(test1, 'A'.node, IntAdapter))
     }
 
 
     @Test
     fun test2() {
-        val bellmanFord =
-            BellmanFord(test2, 'a'.node, IntAdapter)
 
         val expectedDistances = mapOf(
             'a'.node to 0,
@@ -53,7 +50,7 @@ class BellmanFordTests {
             'g'.node to 6,
             'h'.node to 11
         )
-        assertEquals(expectedDistances, bellmanFord.distances)
+        assertEquals(expectedDistances, bellmanFordShortestDistances(test2, 'a'.node, IntAdapter))
 
         val expectedShortestPaths = weightedGraph<Char, Int> {
             for (c in 'a'..'h') {
@@ -67,49 +64,36 @@ class BellmanFordTests {
             edge('g' to 'f', 2)
             edge('f' to 'h', 3)
         }
-        assertEquals(expectedShortestPaths, bellmanFord.shortestPathTree)
-
+        assertEquals(expectedShortestPaths, bellmanFordShortestTree(test2, 'a'.node, IntAdapter))
     }
 
 
     @Test
     fun test3() {
-        val bellmanFord =
-            BellmanFord(test3, 'a'.node, IntAdapter)
-        assertEquals(6, bellmanFord.distances['b'.node])
+        assertEquals(6, bellmanFordShortestDistances(test3, 'a'.node, IntAdapter)['b'.node])
     }
 
 
 
     @Test
     fun test4() {
-        val bellmanFord =
-            BellmanFord(test4, 1.node, IntAdapter)
-        assertEquals(5, bellmanFord.distances[12.node])
+        assertEquals(5, bellmanFordShortestDistances(test4, 1.node, IntAdapter)[12.node])
     }
 
 
     @Test
     fun test5() {
-        val bellmanFord =
-            BellmanFord(test5, 1.node, IntAdapter)
-        assertEquals(6, bellmanFord.distances[3.node])
+        assertEquals(6, bellmanFordShortestDistances(test5, 1.node, IntAdapter)[3.node])
     }
 
-
-    @Test
-    fun test6() {
-//        println(test6)
-//        println(test6.bellmanFordShortestPath(5.node, 2.node))
-    }
 
     @Test(expected = IllegalStateException::class)
-    fun test7() {
+    fun test6() {
         val test6 = weightedGraph<Int, Int> {
             node(1)
             node(2)
             doubleEdge(1 to 2, -1)
         }
-        BellmanFord(test6, 1.node, IntAdapter)
+        bellmanFord(test6, 1.node, IntAdapter)
     }
 }

@@ -1,6 +1,6 @@
-import graphs.algorithms.traversal.BFS
+import graphs.algorithms.traversal.bfs
+import graphs.algorithms.traversal.bfsTreeFrom
 import graphs.algorithms.traversal.traverseBFS
-import graphs.algorithms.traversal.visitLevel
 import graphs.utils.doubleEdge
 import graphs.utils.edge
 import graphs.utils.graph
@@ -51,8 +51,6 @@ class BFSTests {
 
     @Test
     fun randomTest2() {
-        val bfs = BFS(basicGraph, 3.node)
-
         val bfsTree = graph<Int> {
             node(3)
             node(1)
@@ -66,12 +64,11 @@ class BFSTests {
             edge(1 to 0)
             edge(2 to 4)
         }
-        assertEquals(bfsTree, bfs.bfsTree)
+        assertEquals(bfsTree, basicGraph.bfsTreeFrom(3.node))
     }
 
     @Test
     fun randomTest3() {
-        val bfs = BFS(basicGraph, 4.node)
 
         val bfsTree = graph<Int> {
             node(4)
@@ -86,12 +83,13 @@ class BFSTests {
             edge(3 to 5)
             edge(3 to 1)
         }
-        assertEquals(bfsTree, bfs.bfsTree)
+        assertEquals(bfsTree, basicGraph.bfsTreeFrom(4.node))
     }
 
     @Test
     fun randomTest4() {
-        val bfs = BFS(fourComponentGraph, 1.node)
+        val bfs = bfs(fourComponentGraph, 1.node, null)
+
 
         val bfsTree = graph<Int> {
             node(1)
@@ -100,19 +98,17 @@ class BFSTests {
             edge(1 to 2)
             edge(1 to 3)
         }
-        assertEquals(bfsTree, bfs.bfsTree)
-        assertNull(bfs.visitLevel(5.node))
-        assertNull(bfs.visitLevel(4.node))
-        assertEquals(1, bfs.visitLevel(2.node))
-        assertEquals(1, bfs.visitLevel(3.node))
+        assertEquals(bfsTree, fourComponentGraph.bfsTreeFrom(1.node))
+        assertNull(bfs.second[5.node])
+        assertNull(bfs.second[4.node])
+        assertEquals(1, bfs.second[2.node])
+        assertEquals(1, bfs.second[3.node])
     }
 
     @Test
     fun randomTest5() {
-        val bfs1 = BFS(basicGraph, 0.node)
-        assert(!bfs1.bfsTree.hasDirectedCycle)
-        val bfs2 = BFS(fourComponentGraph, 1.node)
-        assert(!bfs2.bfsTree.hasDirectedCycle)
+        assert(!basicGraph.bfsTreeFrom(0.node).hasDirectedCycle)
+        assert(!fourComponentGraph.bfsTreeFrom(1.node).hasDirectedCycle)
     }
 
 }

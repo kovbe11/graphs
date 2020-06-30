@@ -1,8 +1,6 @@
+import graphs.algorithms.shortestpath.DoubleAdapter
 import graphs.algorithms.shortestpath.IntAdapter
-import graphs.algorithms.shortestpath.tree.dijkstraShortestDistances
-import graphs.algorithms.shortestpath.tree.dijkstraShortestPath
-import graphs.algorithms.shortestpath.tree.dijkstraShortestPathLength
-import graphs.algorithms.shortestpath.tree.dijkstraShortestTree
+import graphs.algorithms.shortestpath.tree.*
 import graphs.utils.edge
 import graphs.utils.node
 import graphs.utils.weightedGraph
@@ -90,5 +88,35 @@ class DijkstraTests {
             edge(1 to 2, -1)
         }
         dijkstraShortestPath(test6, 1.node, 2.node, IntAdapter)
+    }
+
+
+    //testing how many nodes it checks while computing
+    @Test
+    fun test7() {
+        assertEquals(
+            9999,
+            dijkstra(grid100x100, (0 to 0).node, (99 to 99).node, DoubleAdapter).size
+        ) //should test all paths to get there
+        assertEquals(
+            9999,
+            dijkstra(grid100x100, (0 to 0).node, null, DoubleAdapter).size
+        ) //should test all paths to get there
+        assert(
+            dijkstra(
+                grid100x100,
+                (50 to 50).node,
+                (50 to 0).node,
+                DoubleAdapter
+            ).size < 8000
+        ) //should be close to 50^2 * pi
+        assert(
+            dijkstra(
+                grid100x100,
+                (50 to 50).node,
+                (50 to 54).node,
+                DoubleAdapter
+            ).size < 80
+        ) //should be close to 4^2 * pi
     }
 }

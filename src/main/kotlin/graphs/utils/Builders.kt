@@ -24,6 +24,10 @@ fun <T> GraphBuilder<T>.edge(edge: Pair<T, T>) {
     graph.addEdge(edge.mutableEdge)
 }
 
+fun <T> GraphBuilder<T>.edge(edge: Edge<T>) {
+    graph.addEdge(edge.mutable)
+}
+
 fun <T> GraphBuilder<T>.doubleEdge(edge: Pair<T, T>) {
     edge(edge)
     edge(edge.second to edge.first)
@@ -31,6 +35,10 @@ fun <T> GraphBuilder<T>.doubleEdge(edge: Pair<T, T>) {
 
 fun <T> GraphBuilder<T>.node(value: T) {
     graph.addNode(value.mutableNode)
+}
+
+fun <T> GraphBuilder<T>.node(node: Node<T>) {
+    graph.addNode(node.value.mutableNode)
 }
 
 class WeightedGraphBuilder<T, N : Number> {
