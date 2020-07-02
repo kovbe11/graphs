@@ -27,7 +27,7 @@ private fun <T> findEdges(graph: Graph<T>, sccs: Set<Set<T>>): Set<Pair<Set<T>, 
     val ret = mutableSetOf<Pair<Set<T>, Set<T>>>()
 
     //O(|E|)
-    for (edge in graph.adjacencyList.values.flatten()) {
+    for (edge in graph.edges) {
         //we find the sccs of the edges
         val start = sccs.find { it.contains(edge.start.value) } //O(1)
         val end = sccs.find { it.contains(edge.end.value) } //O(1)

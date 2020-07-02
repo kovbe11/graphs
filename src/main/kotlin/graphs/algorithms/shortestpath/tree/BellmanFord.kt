@@ -4,9 +4,7 @@ import graphs.Node
 import graphs.WeightedEdge
 import graphs.WeightedGraph
 import graphs.algorithms.shortestpath.NumberAdapter
-import graphs.utils.buildDistanceMappingFromPreviousNodeMapping
-import graphs.utils.buildTreeFromPreviousNodeMapping
-import graphs.utils.get
+import graphs.utils.*
 import kotlin.collections.set
 
 
@@ -29,7 +27,7 @@ fun <T, N : Number> bellmanFord(
         distances[node] = numberAdapter.toN(Double.POSITIVE_INFINITY)
     }
 
-    val edges = graph.adjacencyList.values.flatten()
+    val edges: List<WeightedEdge<T, N>> = graph.edges
 
     for (i in 1 until graph.nodes.size) { //|V| - 1 times
         edges.forEachEdgeIfBetterPathFound(distances, numberAdapter) {

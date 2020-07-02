@@ -6,6 +6,7 @@ import graphs.WeightedGraph
 import graphs.algorithms.shortestpath.NumberAdapter
 import graphs.utils.buildPathFromPreviousNodeMapping
 import graphs.utils.get
+import graphs.utils.nodes
 import graphs.utils.sumEdgeWeights
 import java.util.*
 import kotlin.collections.HashMap
@@ -83,13 +84,13 @@ inline fun <T, N : Number> aStar(
 }
 
 
-inline fun <T, N : Number> aStarShortestPath(
+inline fun <T, N : Number> aStarShortestPathOrNull(
     graph: WeightedGraph<T, N>,
     startNode: Node<T>,
     endNode: Node<T>,
     crossinline heuristicFn: (Node<T>) -> Double,
     numberAdapter: NumberAdapter<N>
-): WeightedGraph<T, N> {
+): WeightedGraph<T, N>? {
     val previousNodeMapping = aStar(
         graph,
         startNode,
@@ -97,7 +98,20 @@ inline fun <T, N : Number> aStarShortestPath(
         heuristicFn,
         numberAdapter
     )
-    return buildPathFromPreviousNodeMapping(endNode, previousNodeMapping)
+    return if (previousNodeMapping.containsKey(endNode))
+        buildPathFromPreviousNodeMapping(endNode, previousNodeMapping)
+    else null
+}
+
+inline fun <T, N : Number> aStarShortestPath(
+    graph: WeightedGraph<T, N>,
+    startNode: Node<T>,
+    endNode: Node<T>,
+    crossinline heuristicFn: (Node<T>) -> Double,
+    numberAdapter: NumberAdapter<N>
+): WeightedGraph<T, N> {
+    return aStarShortestPathOrNull(graph, startNode, endNode, heuristicFn, numberAdapter)
+        ?: error("$endNode unreachable")
 }
 
 fun <T, N : Number> aStarShortestPathLength(

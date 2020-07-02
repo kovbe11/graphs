@@ -4,8 +4,7 @@ import graphs.MutableWeightedGraph
 import graphs.SimpleMutableWeightedGraph
 import graphs.WeightedEdge
 import graphs.WeightedGraph
-import graphs.utils.get
-import graphs.utils.mutable
+import graphs.utils.*
 
 
 private fun <T, N : Number> tryEdge(
@@ -36,9 +35,9 @@ private fun <T, N : Number> cancelTry(
 fun <T, N : Number> kruskal(graph: WeightedGraph<T, N>, comparator: Comparator<N>): WeightedGraph<T, N> {
     check(graph.isUndirected)
 
-    var mutableGraph = SimpleMutableWeightedGraph<T, N>()
+    val mutableGraph = SimpleMutableWeightedGraph<T, N>()
 
-    val allEdges = graph.adjacencyList.values.flatten()
+    val allEdges = graph.edges
     val edgePairs: MutableSet<Pair<WeightedEdge<T, N>, WeightedEdge<T, N>>> = HashSet()
 
     allEdges.forEach {
@@ -60,7 +59,7 @@ fun <T, N : Number> kruskal(graph: WeightedGraph<T, N>, comparator: Comparator<N
             cancelTry(mutableGraph, it)
         }
 
-        val edgeCount = mutableGraph.adjacencyList.values.flatten().count()
+        val edgeCount = mutableGraph.edges.size
         if (edgeCount == graph.nodes.size - 1) {
             return@forEach
         }

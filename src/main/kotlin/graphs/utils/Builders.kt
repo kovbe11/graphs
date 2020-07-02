@@ -15,7 +15,7 @@ fun <T> graph(op: GraphBuilder<T>.() -> Unit = {}): Graph<T> {
     return GraphBuilder<T>().apply(op).build()
 }
 
-fun <T> mutableGraph(op: GraphBuilder<T>.() -> Unit = {}): SimpleMutableGraph<T> {
+fun <T> mutableGraph(op: GraphBuilder<T>.() -> Unit = {}): MutableGraph<T> {
     return GraphBuilder<T>().apply(op).graph
 }
 

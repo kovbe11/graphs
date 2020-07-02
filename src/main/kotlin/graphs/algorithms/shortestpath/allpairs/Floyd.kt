@@ -5,6 +5,7 @@ import graphs.WeightedEdge
 import graphs.WeightedGraph
 import graphs.algorithms.shortestpath.NumberAdapter
 import graphs.utils.get
+import graphs.utils.nodes
 
 
 typealias DistanceMatrix<N> = List<List<N>>

@@ -68,4 +68,5 @@ fun main() {
 
     println("expected answer: lga to tlv, lga to sfo or lga to san, lga to ewr")
     println(findMinimalNewEdgesToReachAllNodes(parsedGraph, baseAirport.node))
+
 }

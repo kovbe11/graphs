@@ -3,7 +3,7 @@ package graphs.utils
 import graphs.*
 import graphs.algorithms.shortestpath.NumberAdapter
 import graphs.algorithms.traversal.dfsDirectedDetectCycleFrom
-import graphs.algorithms.traversal.dfsUnDirectedDetectCycleFrom
+import graphs.algorithms.traversal.dfsUndirectedDetectCycleFrom
 
 val <T> MutableGraph<T>.immutable: Graph<T>
     get() {
@@ -37,31 +37,12 @@ val <T, N : Number> WeightedGraph<T, N>.mutable: SimpleMutableWeightedGraph<T, N
     }
 
 
-fun <T> hasDirectedCycle(graph: Graph<T>): Boolean {
-    return graph.nodes.any { dfsDirectedDetectCycleFrom(graph, it) }
-}
-
-fun <T> hasUndirectedCycle(graph: Graph<T>): Boolean {
-    return graph.nodes.any { dfsUnDirectedDetectCycleFrom(graph, it) }
-}
-
 operator fun <T> MutableGraph<T>.get(node: MutableNode<T>): MutableSet<MutableEdge<T>>? {
     return adjacencyList[node]
 }
 
 operator fun <T> Graph<T>.get(node: Node<T>): Set<Edge<T>>? {
     return adjacencyList[node]
-}
-
-fun <T> isUndirected(graph: Graph<T>): Boolean {
-    val edges = graph.adjacencyList.values.flatten()
-    for (edge in edges) {
-        //each edge has a pair
-        if (graph[edge.end]!!.find { it.end == edge.start } == null) {
-            return false
-        }
-    }
-    return true
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -89,7 +70,7 @@ fun <T> Graph<T>.transposed(): Graph<T> {
 
 
 operator fun <T> Graph<T>.minus(other: Set<Node<T>>): Graph<T> {
-    val retAdjList = adjacencyList.filterKeys { !other.contains(it) }
+    val retAdjList: Map<Node<T>, Set<Edge<T>>> = adjacencyList.filterKeys { !other.contains(it) }
         .mapValues { it.value.filter { edge -> !other.contains(edge.start) && !other.contains(edge.end) }.toSet() }
     return SimpleGraph(retAdjList)
 }
@@ -216,3 +197,40 @@ fun <T, N : Number> WeightedGraph<T, N>.sumEdgeWeights(numberAdapter: NumberAdap
             numberAdapter.toN(numberAdapter.toDouble(edge.weight) + numberAdapter.toDouble(acc))
         }
 }
+
+
+val <T> Graph<T>.nodes: Set<Node<T>>
+    get() = adjacencyList.keys
+
+val <T> MutableGraph<T>.nodes: Set<MutableNode<T>>
+    get() = adjacencyList.keys
+
+val <T> Graph<T>.edges: List<Edge<T>>
+    get() = adjacencyList.values.flatten()
+
+val <T> MutableGraph<T>.edges: List<MutableEdge<T>>
+    get() = adjacencyList.values.flatten()
+
+val <T, N : Number> WeightedGraph<T, N>.edges: List<WeightedEdge<T, N>>
+    get() = adjacencyList.values.flatten()
+
+val <T, N : Number> MutableWeightedGraph<T, N>.edges: List<MutableWeightedEdge<T, N>>
+    get() = adjacencyList.values.flatten()
+
+val <T> Graph<T>.hasDirectedCycle: Boolean
+    get() = this.nodes.any { dfsDirectedDetectCycleFrom(this, it) }
+val <T> Graph<T>.hasUndirectedCycle: Boolean
+    get() = this.nodes.any { dfsUndirectedDetectCycleFrom(this, it) }
+val <T> Graph<T>.isUndirected: Boolean
+    get() {
+        return adjacencyList.values.flatten().all { edge ->
+            adjacencyList[edge.end]!!.find { it.end == edge.start } != null
+        }
+    }
+val <T, N : Number> WeightedGraph<T, N>.isUndirected: Boolean
+    get() {
+        return adjacencyList.values.flatten().all { edge ->
+            val other = adjacencyList[edge.end]!!.find { it.end == edge.start } ?: return false
+            return edge.weight == other.weight
+        }
+    }

@@ -1,5 +1,8 @@
 package graphs.algorithms.shortestpath
 
+
+//using this interface let's the hypothetic user of the "library"
+// to use their own Number instead of Double
 interface NumberAdapter<N : Number> {
     val toN: (Double) -> N
     val toDouble: (N) -> Double

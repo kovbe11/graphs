@@ -5,6 +5,7 @@ import graphs.Graph
 import graphs.Node
 import graphs.utils.buildTreeFromPreviousNodeMapping
 import graphs.utils.get
+import graphs.utils.isUndirected
 
 
 class DFSHelper<T>(
@@ -141,7 +142,7 @@ fun <T> dfsDirectedDetectCycleFrom(graph: Graph<T>, startNode: Node<T>): Boolean
     return directedCycleFound
 }
 
-fun <T> dfsUnDirectedDetectCycleFrom(graph: Graph<T>, startNode: Node<T>): Boolean {
+fun <T> dfsUndirectedDetectCycleFrom(graph: Graph<T>, startNode: Node<T>): Boolean {
     if (!graph.isUndirected) {
         return false
     }
@@ -149,7 +150,8 @@ fun <T> dfsUnDirectedDetectCycleFrom(graph: Graph<T>, startNode: Node<T>): Boole
     val onStack: MutableSet<Node<T>> = HashSet()
     var unDirectedCycleFound = false
 
-    DFSHelper(graph,
+    DFSHelper(
+        graph,
         startNode,
         onEnter = { onStack.add(it) },
         onVisitedEdge = {

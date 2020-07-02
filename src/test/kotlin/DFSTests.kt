@@ -1,14 +1,10 @@
 import graphs.algorithms.traversal.*
-import graphs.utils.doubleEdge
-import graphs.utils.edge
-import graphs.utils.graph
-import graphs.utils.node
+import graphs.utils.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DFSTests {
 
-    //TODO: több teszt
 
     private val basicGraph = graph<Char>
     {
@@ -180,9 +176,9 @@ class DFSTests {
         }
 
         assert(dfsDirectedDetectCycleFrom(undirected1, 1.node))
-        assert(!dfsUnDirectedDetectCycleFrom(undirected1, 1.node))
+        assert(!dfsUndirectedDetectCycleFrom(undirected1, 1.node))
         assert(dfsDirectedDetectCycleFrom(undirected2, 1.node))
-        assert(dfsUnDirectedDetectCycleFrom(undirected2, 1.node))
+        assert(dfsUndirectedDetectCycleFrom(undirected2, 1.node))
     }
 
 }

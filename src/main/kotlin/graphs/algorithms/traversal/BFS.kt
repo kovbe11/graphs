@@ -11,12 +11,13 @@ import graphs.utils.get
 private fun <T> bfsHelper(
     graph: Graph<T>,
     current: Node<T>,
-    endNode: Node<T>?,
     visited: MutableMap<Node<T>, Int>,
-    previousNodeMapping: MutableMap<Node<T>, Edge<T>>,
-    d: Int
+    onVisit: (Node<T>) -> Unit = {},
+    onUnvisitedEdge: (Edge<T>) -> Unit = {},
+    d: Int = 0
 ) {
     visited[current] = d
+    onVisit(current)
 
     val neighbourConnections = (graph[current] ?: error("invalid graph"))
         .filter { !visited.containsKey(it.end) }
@@ -24,11 +25,11 @@ private fun <T> bfsHelper(
     if (neighbourConnections.isEmpty()) return
 
     for (edge in neighbourConnections) {
-        previousNodeMapping[edge.end] = edge
         visited[edge.end] = d + 1
+        onUnvisitedEdge(edge)
     }
     for (edge in neighbourConnections) {
-        bfsHelper(graph, edge.end, endNode, visited, previousNodeMapping, d + 1)
+        bfsHelper(graph, edge.end, visited, onVisit, onUnvisitedEdge, d + 1)
     }
 }
 
@@ -36,49 +37,52 @@ private fun <T> bfsHelper(
 fun <T> bfs(
     graph: Graph<T>,
     startNode: Node<T>,
-    endNode: Node<T>? = null
-): Pair<Map<Node<T>, Edge<T>>, Map<Node<T>, Int>> {
+    onVisit: (Node<T>) -> Unit = {},
+    onUnvisitedEdge: (Edge<T>) -> Unit = {}
+): Map<Node<T>, Int> {
     val visited: MutableMap<Node<T>, Int> = HashMap()
-    val previousNodeMapping: MutableMap<Node<T>, Edge<T>> = HashMap()
-    bfsHelper(graph, startNode, endNode, visited, previousNodeMapping, 0)
-
-    return previousNodeMapping to visited
+    bfsHelper(graph, startNode, visited, onVisit, onUnvisitedEdge)
+    return visited
 }
 
 fun <T> Graph<T>.bfsTreeFrom(startNode: Node<T>): Graph<T> {
-    return buildTreeFromPreviousNodeMapping(startNode, bfs(this, startNode, null).first)
+    val previousNodeMapping: MutableMap<Node<T>, Edge<T>> = HashMap()
+    bfs(this, startNode, onUnvisitedEdge = { previousNodeMapping[it.end] = it })
+
+    return buildTreeFromPreviousNodeMapping(startNode, previousNodeMapping)
 }
 
 fun <T> Graph<T>.bfsDistance(startNode: Node<T>, endNode: Node<T>): Int {
-    return bfs(this, startNode, endNode).second[endNode] ?: -1
+    val visited: MutableMap<Node<T>, Int> = HashMap()
+    bfsHelper(this, startNode, visited, { if (it == endNode) return@bfsHelper })
+    return visited[endNode] ?: -1
 }
 
 fun <T> bfsShortestPath(graph: Graph<T>, startNode: Node<T>, endNode: Node<T>): Graph<T> {
-    return bfsShortestPathOrNull(graph, startNode, endNode) ?: error("$endNode is unreachable, or not part of graph")
+    return bfsShortestPathOrNull(graph, startNode, endNode) ?: error("$endNode unreachable")
 }
 
 fun <T> bfsShortestPathOrNull(graph: Graph<T>, startNode: Node<T>, endNode: Node<T>): Graph<T>? {
-    val bfs = bfs(graph, startNode, endNode)
-    if (!bfs.second.containsKey(endNode)) {
-        return null
-    }
-    return buildPathFromPreviousNodeMapping(endNode, bfs.first)
+    val visited: MutableMap<Node<T>, Int> = HashMap()
+    val previousNodeMapping: MutableMap<Node<T>, Edge<T>> = HashMap()
+    bfsHelper(graph, startNode, visited, { if (it == endNode) return@bfsHelper }, { previousNodeMapping[it.end] = it })
+
+    return if (visited.containsKey(endNode))
+        buildPathFromPreviousNodeMapping(endNode, previousNodeMapping)
+    else null
 }
 
-inline fun <T> Graph<T>.traverseBFS(startingNode: Node<T>, crossinline function: (Node<T>) -> Unit) {
-    traverseBFSIndexed(startingNode) { node, _ ->
-        function(node)
-    }
+fun <T> Graph<T>.traverseBFS(startNode: Node<T>, function: (Node<T>) -> Unit) {
+    this.traverseBFSIndexed(startNode) { node, _ -> function(node) }
 }
 
-inline fun <T> Graph<T>.traverseBFSIndexed(startNode: Node<T>, crossinline function: (Node<T>, Int) -> Unit) {
-
-    val bfs = bfs(this, startNode, null)
-    val levels = bfs.second.values.max() ?: return
-
-    for (i in 0..levels) {
-        bfs.second.filterValues { it == i }.keys.forEach {
-            function(it, i)
+fun <T> Graph<T>.traverseBFSIndexed(startNode: Node<T>, function: (Node<T>, Int) -> Unit) {
+    val visited: MutableMap<Node<T>, Int> = HashMap()
+    bfsHelper(this, startNode, visited)
+    for (i in 0..visited.values.max()!!) {
+        for (entry in visited.filterValues { it == i }) {
+            function(entry.key, i)
         }
     }
+
 }
